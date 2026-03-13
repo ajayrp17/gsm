@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} | Grogin{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="product-card p-3">
+            {% if product.image %}
+            <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+            {% else %}
+            <div class="product-image product-image-placeholder">No Image</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="glass-card p-4">
+            <p class="text-muted mb-1">{{ product.category.name }}</p>
+            <h2>{{ product.name }}</h2>
+            <p>{{ product.description }}</p>
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <span class="price fs-4">INR {{ product.discounted_price }}</span>
+                {% if product.discounted_price != product.price %}
+                <span class="text-muted text-decoration-line-through">INR {{ product.price }}</span>
+                {% endif %}
+            </div>
+            <p>Stock: <strong>{{ product.stock }}</strong></p>
+            <p>Average Rating: <strong>{{ product.average_rating|floatformat:1 }}</strong> / 5 ({{ product.review_count }} reviews)</p>
+
+            <div class="d-flex gap-2 flex-wrap mb-3">
+                <a href="{% url 'cart:add_to_cart' product.id %}" class="btn btn-theme">Add to Cart</a>
+                <a href="{% url 'cart:add_to_wishlist' product.id %}" class="btn btn-outline-secondary">Add to Wishlist</a>
+                <button type="button" class="btn btn-glass" onclick="copyLink('{{ request.build_absolute_uri }}')">Copy Link</button>
+                <button type="button" class="btn btn-glass" onclick="shareProduct('{{ product.name }}', '{{ request.build_absolute_uri }}')">Share</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-lg-7">
+        <div class="glass-card p-4">
+            <h4 class="mb-3">Ratings & Reviews</h4>
+            {% for review in reviews %}
+            <div class="border-bottom pb-2 mb-3">
+                <div class="d-flex justify-content-between">
+                    <strong>{{ review.user.username }}</strong>
+                    <span>{{ review.rating }}/5</span>
+                </div>
+                <p class="mb-1">{{ review.comment|default:'No comment' }}</p>
+                <small class="text-muted">{{ review.created_at|date:'M d, Y H:i' }}</small>
+            </div>
+            {% empty %}
+            <p class="text-muted">No reviews yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="glass-card p-4">
+            <h4 class="mb-3">Write a Review</h4>
+            {% if user.is_authenticated %}
+            <form method="post">
+                {% csrf_token %}
+                {{ review_form.as_p }}
+                <button type="submit" class="btn btn-theme">Submit Review</button>
+            </form>
+            {% else %}
+            <p>Please <a href="{% url 'login' %}?next={{ request.path }}">login</a> to review this product.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<section class="mt-4">
+    <h4 class="mb-3">Related Products</h4>
+    <div class="row g-3">
+        {% for related in related_products %}
+        <div class="col-sm-6 col-lg-3">
+            <div class="product-card p-3 h-100">
+                <h6>{{ related.name }}</h6>
+                <p class="mb-1 text-muted small">{{ related.category.name }}</p>
+                <p class="price">INR {{ related.discounted_price }}</p>
+                <a href="{% url 'catalog:product_detail' related.slug %}" class="btn btn-sm btn-outline-primary">View</a>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">No related products.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

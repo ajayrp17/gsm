@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Grogin | Fresh Grocery Delivery{% endblock %}
+{% block content %}
+<section class="hero-panel p-4 p-lg-5 mb-4">
+    <div class="row align-items-center">
+        <div class="col-lg-7">
+            <p class="text-uppercase fw-bold opacity-75 mb-2">Built for quick grocery runs</p>
+            <h1 class="display-5 fw-bold">Fresh groceries delivered to your door in minutes.</h1>
+            <p class="lead">Browse fruits, vegetables, dairy, snacks, and beverages with fast checkout and order tracking.</p>
+            <a class="btn btn-theme btn-lg me-2" href="{% url 'catalog:product_list' %}">Start Shopping</a>
+            {% if user.is_authenticated %}
+            <span class="hero-user-chip">Hi {{ user.username }}</span>
+            {% else %}
+            <a class="btn btn-glass btn-lg" href="{% url 'login' %}">Login</a>
+            {% endif %}
+        </div>
+        <div class="col-lg-5 mt-4 mt-lg-0">
+            <div class="hero-badge-stack">
+                <div class="hero-badge">
+                    <div class="fw-semibold mb-2">Unique UI and responsive design</div>
+                    <a class="btn btn-sm btn-theme w-100" href="{% url 'catalog:product_list' %}?offer_only=1">
+                        Show Offer Items
+                    </a>
+                </div>
+                <div class="hero-badge">
+                    <div class="fw-semibold mb-2">Coupons, offers, and delivery tracking</div>
+                    <div class="small text-muted">
+                        {% if active_coupon_offers %}
+                        Coupon Codes:
+                        {% for offer in active_coupon_offers %}
+                        <span class="coupon-inline-code">{{ offer.coupon_code }}</span>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                        {% else %}
+                        No active coupon code available now.
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="hero-badge">
+                    <div class="fw-semibold mb-2">COD + Online payment simulation</div>
+                    {% if user.is_authenticated and latest_order %}
+                    <div class="small mb-2 text-muted">Current order status: <strong>{{ latest_order.get_status_display }}</strong></div>
+                    <a class="btn btn-sm btn-outline-primary w-100" href="{% url 'orders:order_tracking' latest_order.id %}">
+                        Track Your Order
+                    </a>
+                    {% elif user.is_authenticated %}
+                    <div class="small mb-2 text-muted">You have no order to track yet.</div>
+                    <a class="btn btn-sm btn-outline-primary w-100" href="{% url 'catalog:product_list' %}">
+                        Place Your First Order
+                    </a>
+                    {% else %}
+                    <div class="small mb-2 text-muted">Login to track your current order status.</div>
+                    <a class="btn btn-sm btn-outline-primary w-100" href="{% url 'login' %}">
+                        Login to Track
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <h3 class="mb-3">Popular Categories</h3>
+    <div class="row g-3">
+        {% for category in categories %}
+        <div class="col-6 col-md-4 col-lg-2">
+            <a href="{% url 'catalog:product_list' %}?category={{ category.slug }}" class="category-chip d-block text-center">
+                <span>{{ category.name }}</span>
+            </a>
+        </div>
+        {% empty %}
+        <p>No categories yet.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">Featured Products</h3>
+        <a href="{% url 'catalog:product_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    <div class="row g-4">
+        {% for product in featured_products %}
+        <div class="col-sm-6 col-lg-3">
+            <div class="product-card h-100">
+                <a href="{% url 'catalog:product_detail' product.slug %}">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" />
+                    {% else %}
+                    <div class="product-image product-image-placeholder">No Image</div>
+                    {% endif %}
+                </a>
+                <div class="p-3">
+                    <p class="text-muted mb-1 small">{{ product.category.name }}</p>
+                    <h5><a href="{% url 'catalog:product_detail' product.slug %}" class="text-decoration-none">{{ product.name }}</a></h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="price">INR {{ product.discounted_price }}</span>
+                        <a href="{% url 'cart:add_to_cart' product.id %}" class="btn btn-sm btn-theme">Add</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>No products available yet.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

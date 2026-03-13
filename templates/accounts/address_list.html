@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Addresses | Grogin{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-7">
+        <h3 class="mb-3">Saved Addresses</h3>
+        {% for address in addresses %}
+        <div class="glass-card p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h5 class="mb-1">{{ address.label }} {% if address.is_default %}<span class="badge text-bg-success">Default</span>{% endif %}</h5>
+                    <p class="mb-1 fw-semibold">{{ address.full_name }} | {{ address.phone }}</p>
+                    <p class="mb-0 text-muted">{{ address.formatted }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'accounts:address_edit' address.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <form method="post" action="{% url 'accounts:address_delete' address.pk %}">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% if not address.is_default %}
+            <form method="post" action="{% url 'accounts:address_default' address.pk %}" class="mt-2">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-success" type="submit">Set as Default</button>
+            </form>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="glass-card p-3">No addresses saved yet.</div>
+        {% endfor %}
+    </div>
+    <div class="col-lg-5">
+        <div class="glass-card p-4">
+            <h4 class="mb-3">Add New Address</h4>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="btn btn-theme" type="submit">Save Address</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

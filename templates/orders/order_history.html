@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Order History | Grogin{% endblock %}
+{% block content %}
+<h3 class="mb-3">Your Orders</h3>
+{% for order in orders %}
+<div class="glass-card p-3 mb-3">
+    <div class="d-flex justify-content-between flex-wrap gap-2">
+        <div>
+            <h5 class="mb-1">Order #{{ order.id }}</h5>
+            <p class="mb-1 text-muted">Placed on {{ order.created_at|date:'M d, Y H:i' }}</p>
+            <p class="mb-0">Status: <span class="badge text-bg-info">{{ order.get_status_display }}</span></p>
+        </div>
+        <div class="text-end">
+            <p class="mb-1">Amount: <strong>INR {{ order.final_amount }}</strong></p>
+            <div class="d-flex gap-2 justify-content-end flex-wrap">
+                <a href="{% url 'orders:order_tracking' order.id %}" class="btn btn-sm btn-theme">Track</a>
+                <form method="post" action="{% url 'orders:reorder' order.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Re-order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <ul class="mb-0">
+        {% for item in order.items.all %}
+        <li>{{ item.product.name }} x {{ item.quantity }} (INR {{ item.price }})</li>
+        {% endfor %}
+    </ul>
+</div>
+{% empty %}
+<div class="glass-card p-4 text-center">No orders yet.</div>
+{% endfor %}
+{% endblock %}

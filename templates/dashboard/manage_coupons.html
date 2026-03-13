@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block title %}Manage Coupons | Grogin{% endblock %}
+{% block content %}
+<h3 class="mb-3">Coupon & Offer Management</h3>
+
+<div class="glass-card p-3 mb-4">
+    <h5 class="mb-3">{% if edit_offer %}Edit Coupon / Offer{% else %}Create Coupon / Offer{% endif %}</h5>
+    <form method="post" class="row g-3">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="save_coupon">
+        {% if edit_offer %}
+        <input type="hidden" name="offer_id" value="{{ edit_offer.id }}">
+        {% endif %}
+
+        {% if offer_form.non_field_errors %}
+        <div class="col-12">
+            {{ offer_form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <div class="col-md-4">
+            <label class="form-label">Offer Name</label>
+            {{ offer_form.name }}
+            {{ offer_form.name.errors }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Coupon Code</label>
+            {{ offer_form.coupon_code }}
+            {{ offer_form.coupon_code.errors }}
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Offer Type</label>
+            {{ offer_form.offer_type }}
+            {{ offer_form.offer_type.errors }}
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Discount %</label>
+            {{ offer_form.discount_percentage }}
+            {{ offer_form.discount_percentage.errors }}
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Min Order Amount</label>
+            {{ offer_form.min_order_amount }}
+            {{ offer_form.min_order_amount.errors }}
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Max Discount</label>
+            {{ offer_form.max_discount_amount }}
+            {{ offer_form.max_discount_amount.errors }}
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Min Completed Orders</label>
+            {{ offer_form.min_completed_orders }}
+            {{ offer_form.min_completed_orders.errors }}
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Max Uses / User</label>
+            {{ offer_form.max_uses_per_user }}
+            {{ offer_form.max_uses_per_user.errors }}
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Priority</label>
+            {{ offer_form.priority }}
+            {{ offer_form.priority.errors }}
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Expiry Date</label>
+            {{ offer_form.expiry_date }}
+            {{ offer_form.expiry_date.errors }}
+        </div>
+        <div class="col-md-9">
+            <label class="form-label">Applicable Items</label>
+            {{ offer_form.products }}
+            {{ offer_form.products.errors }}
+        </div>
+        <div class="col-md-3 d-grid gap-2 align-content-end">
+            <div class="form-check">
+                {{ offer_form.active }}
+                <label class="form-check-label" for="{{ offer_form.active.id_for_label }}">Offer Active</label>
+            </div>
+            <div class="form-check">
+                {{ offer_form.auto_apply }}
+                <label class="form-check-label" for="{{ offer_form.auto_apply.id_for_label }}">Auto Apply (System)</label>
+            </div>
+            <div class="form-check">
+                {{ offer_form.allow_with_other_coupon }}
+                <label class="form-check-label" for="{{ offer_form.allow_with_other_coupon.id_for_label }}">
+                    Allow as 2nd coupon
+                </label>
+            </div>
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+            <button type="submit" class="btn btn-theme">{% if edit_offer %}Update Coupon{% else %}Create Coupon{% endif %}</button>
+            {% if edit_offer %}
+            <a href="{% url 'dashboard:manage_coupons' %}" class="btn btn-outline-secondary">Cancel Edit</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<div class="glass-card p-3">
+    <h5 class="mb-3">All Coupons / Offers</h5>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Coupon Code</th>
+                    <th>Type</th>
+                    <th>Discount</th>
+                    <th>Min Order</th>
+                    <th>Expiry</th>
+                    <th>Status</th>
+                    <th>Rule</th>
+                    <th>Items</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for offer in offers %}
+                <tr>
+                    <td>{{ offer.name }}</td>
+                    <td>{{ offer.coupon_code|default:"-" }}</td>
+                    <td>{{ offer.get_offer_type_display }}</td>
+                    <td>{{ offer.discount_percentage }}%</td>
+                    <td>INR {{ offer.min_order_amount }}</td>
+                    <td>{{ offer.expiry_date|date:'M d, Y' }}</td>
+                    <td>
+                        {% if offer.is_valid %}
+                        <span class="badge text-bg-success">Active</span>
+                        {% elif offer.active and offer.expiry_date < today %}
+                        <span class="badge text-bg-warning">Expired</span>
+                        {% else %}
+                        <span class="badge text-bg-secondary">Disabled</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="small">
+                            Min orders: {{ offer.min_completed_orders }}<br>
+                            Max uses: {% if offer.max_uses_per_user %}{{ offer.max_uses_per_user }}{% else %}Unlimited{% endif %}<br>
+                            {% if offer.auto_apply %}Auto{% endif %}
+                            {% if offer.auto_apply and offer.allow_with_other_coupon %} / {% endif %}
+                            {% if offer.allow_with_other_coupon %}2nd Coupon{% endif %}
+                        </div>
+                    </td>
+                    <td>{{ offer.products.count }}</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'dashboard:manage_coupons' %}?edit={{ offer.id }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <form method="post" onsubmit="return confirm('Delete this coupon/offer?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_coupon">
+                                <input type="hidden" name="offer_id" value="{{ offer.id }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="10" class="text-center">No coupons/offers found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

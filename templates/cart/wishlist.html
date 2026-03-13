@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Wishlist | Grogin{% endblock %}
+{% block content %}
+<h3 class="mb-3">Wishlist</h3>
+<div class="row g-4">
+    {% for item in items %}
+    <div class="col-sm-6 col-lg-4">
+        <div class="product-card p-3 h-100">
+            <h5>{{ item.product.name }}</h5>
+            <p class="text-muted">{{ item.product.category.name }}</p>
+            <p class="price">INR {{ item.product.discounted_price }}</p>
+            <div class="d-flex gap-2">
+                <a class="btn btn-sm btn-theme" href="{% url 'cart:add_to_cart' item.product.id %}">Add to Cart</a>
+                <form method="post" action="{% url 'cart:remove_from_wishlist' item.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="glass-card p-4 text-center">
+            <p class="mb-2">No products in wishlist.</p>
+            <a href="{% url 'catalog:product_list' %}" class="btn btn-theme">Browse Products</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

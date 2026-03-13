@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Login | Grogin{% endblock %}
+{% block content %}
+<section class="auth-box-shell py-2">
+    <div class="auth-box-card auth-box-card-login">
+        <div class="auth-box-side">
+            <p class="auth-box-kicker">Grogin Access</p>
+            <h2>Welcome Back</h2>
+            <p>Sign in to track orders, apply coupons, and manage your grocery flow.</p>
+            <ul class="auth-box-points">
+                <li>Real-time order tracking</li>
+                <li>Saved addresses and faster checkout</li>
+                <li>Coupon and offer support</li>
+            </ul>
+        </div>
+        <div class="auth-box-main">
+            <p class="auth-box-pill">Member Login</p>
+            <h1>Sign In</h1>
+            <p class="auth-box-subtitle">Enter your account details to continue.</p>
+
+            <form method="post" novalidate class="auth-box-form">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2 mb-3">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="auth-box-field">
+                    <label class="form-label fw-semibold" for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                    {{ form.username }}
+                    {% for error in form.username.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="auth-box-field">
+                    <label class="form-label fw-semibold" for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                    {{ form.password }}
+                    {% for error in form.password.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn-theme w-100 py-2 auth-box-submit">Login</button>
+            </form>
+
+            <div class="auth-box-actions">
+                <a href="{% url 'accounts:register' %}" class="fw-semibold">Create account</a>
+                <a href="{% url 'password_reset' %}">Forgot password?</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

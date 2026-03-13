@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Logged Out | Grogin{% endblock %}
+{% block content %}
+<div class="text-center py-5 glass-card">
+    <h3>You are logged out.</h3>
+    <a href="{% url 'login' %}" class="btn btn-theme mt-2">Login Again</a>
+</div>
+{% endblock %}

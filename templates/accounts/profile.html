@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Profile | Grogin{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="glass-card p-4">
+            <h3 class="mb-3">Profile Settings</h3>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h6 class="text-muted">Account Info</h6>
+                {{ user_form.as_p }}
+                <h6 class="text-muted mt-3">Contact</h6>
+                {{ profile_form.as_p }}
+                <button type="submit" class="btn btn-theme">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="glass-card p-4 mb-4">
+            <h5>Quick Actions</h5>
+            <a class="btn btn-outline-primary w-100 mb-2" href="{% url 'accounts:addresses' %}">Manage Addresses</a>
+            <a class="btn btn-outline-secondary w-100 mb-2" href="{% url 'orders:order_history' %}">Delivery Tracking</a>
+            <a class="btn btn-theme w-100" href="{% url 'orders:checkout' %}">Go to Checkout</a>
+        </div>
+
+        <div class="glass-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="mb-0">Coupons & Offers</h5>
+                <small class="text-muted">Tap to apply</small>
+            </div>
+            <div class="offer-grid offer-grid-compact">
+                {% for offer in active_offers %}
+                <a href="{% url 'orders:checkout' %}?coupon={{ offer.coupon_code|urlencode }}" class="offer-card">
+                    <span class="offer-chip">{{ offer.discount_percentage }}% OFF</span>
+                    <strong>{{ offer.name }}</strong>
+                    <small>{{ offer.coupon_code }}</small>
+                    <small>Expires {{ offer.expiry_date|date:'M d, Y' }}</small>
+                </a>
+                {% empty %}
+                <div class="offer-card offer-card-empty">
+                    <strong>No offers right now</strong>
+                    <small>New coupons will show here.</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

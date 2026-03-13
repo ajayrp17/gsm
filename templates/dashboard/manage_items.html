@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block title %}Manage Items | Grogin{% endblock %}
+{% block content %}
+<h3 class="mb-3">Item Management</h3>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="glass-card p-3">
+            <h5 class="mb-3">{% if edit_item %}Edit Item{% else %}Add New Item{% endif %}</h5>
+            <form method="post" enctype="multipart/form-data" class="row g-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save_item">
+                {% if edit_item %}
+                <input type="hidden" name="item_id" value="{{ edit_item.id }}">
+                {% endif %}
+
+                {% if product_form.non_field_errors %}
+                <div class="col-12">
+                    {{ product_form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <div class="col-md-6">
+                    <label class="form-label">Category</label>
+                    {{ product_form.category }}
+                    {{ product_form.category.errors }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Item Name</label>
+                    {{ product_form.name }}
+                    {{ product_form.name.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Price</label>
+                    {{ product_form.price }}
+                    {{ product_form.price.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Stock</label>
+                    {{ product_form.stock }}
+                    {{ product_form.stock.errors }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Expiry Date</label>
+                    {{ product_form.expiry_date }}
+                    {{ product_form.expiry_date.errors }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Description</label>
+                    {{ product_form.description }}
+                    {{ product_form.description.errors }}
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label">Photo</label>
+                    {{ product_form.image }}
+                    {{ product_form.image.errors }}
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check">
+                        {{ product_form.is_active }}
+                        <label class="form-check-label" for="{{ product_form.is_active.id_for_label }}">Active Item</label>
+                    </div>
+                </div>
+
+                {% if edit_item and edit_item.image %}
+                <div class="col-12">
+                    <small class="text-muted d-block mb-2">Current photo</small>
+                    <img src="{{ edit_item.image.url }}" alt="{{ edit_item.name }}" class="rounded" style="max-height: 120px;">
+                </div>
+                {% endif %}
+
+                <div class="col-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-theme">{% if edit_item %}Update Item{% else %}Add Item{% endif %}</button>
+                    {% if edit_item %}
+                    <a href="{% url 'dashboard:manage_items' %}" class="btn btn-outline-secondary">Cancel Edit</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="glass-card p-3 h-100">
+            <h5 class="mb-3">Quick Add Category</h5>
+            <form method="post" class="d-grid gap-3">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save_category">
+                <div>
+                    <label class="form-label">Category Name</label>
+                    {{ category_form.name }}
+                    {{ category_form.name.errors }}
+                </div>
+                <div>
+                    <label class="form-label">Description</label>
+                    {{ category_form.description }}
+                    {{ category_form.description.errors }}
+                </div>
+                <button type="submit" class="btn btn-outline-primary">Create Category</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="glass-card p-3">
+    <h5 class="mb-3">All Items</h5>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Photo</th>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Expiry</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>
+                        {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="rounded" style="width: 54px; height: 54px; object-fit: cover;">
+                        {% else %}
+                        <span class="text-muted small">No photo</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.category.name }}</td>
+                    <td>INR {{ item.price }}</td>
+                    <td>{{ item.stock }}</td>
+                    <td>{{ item.expiry_date|date:'M d, Y'|default:'-' }}</td>
+                    <td>
+                        {% if item.is_active %}
+                        <span class="badge text-bg-success">Active</span>
+                        {% else %}
+                        <span class="badge text-bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'dashboard:manage_items' %}?edit={{ item.id }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <form method="post" onsubmit="return confirm('Delete this item?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_item">
+                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="text-center">No items found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

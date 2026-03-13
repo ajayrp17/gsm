@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Shop | Grogin{% endblock %}
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-3">
+        <div class="glass-card p-3 sticky-top" style="top: 90px;">
+            <h5>Filters</h5>
+            <form method="get">
+                {% if offer_only %}
+                <input type="hidden" name="offer_only" value="1">
+                {% endif %}
+                <div class="mb-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search products...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All</option>
+                        {% for category in categories %}
+                        <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="row g-2 mb-3 price-filter-row">
+                    <div class="col-6">
+                        <label class="form-label">Min Price</label>
+                        <input type="number" name="min_price" value="{{ min_price }}" class="form-control" step="0.01" placeholder="0">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Max Price</label>
+                        <input type="number" name="max_price" value="{{ max_price }}" class="form-control" step="0.01" placeholder="1000">
+                    </div>
+                </div>
+                <button class="btn btn-theme w-100" type="submit">Apply Filters</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0">{% if offer_only %}Offer Items{% else %}All Products{% endif %}</h3>
+            <span class="text-muted">{{ products|length }} items</span>
+        </div>
+        {% if offer_only %}
+        <div class="glass-card p-2 px-3 mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="small">Showing products with active offers only.</span>
+            <a href="{% url 'catalog:product_list' %}" class="btn btn-sm btn-outline-secondary">Clear Offer Filter</a>
+        </div>
+        {% endif %}
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-sm-6 col-xl-4">
+                <div class="product-card h-100">
+                    <a href="{% url 'catalog:product_detail' product.slug %}">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" />
+                        {% else %}
+                        <div class="product-image product-image-placeholder">No Image</div>
+                        {% endif %}
+                    </a>
+                    <div class="p-3">
+                        <small class="text-muted">{{ product.category.name }}</small>
+                        <h5 class="mt-1"><a class="text-decoration-none" href="{% url 'catalog:product_detail' product.slug %}">{{ product.name }}</a></h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="price">INR {{ product.discounted_price }}</span>
+                            <span class="badge text-bg-light">Stock: {{ product.stock }}</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-theme flex-grow-1" href="{% url 'cart:add_to_cart' product.id %}">Add to Cart</a>
+                            <a class="btn btn-sm btn-outline-secondary" href="{% url 'cart:add_to_wishlist' product.id %}">&#9825;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="glass-card p-4 text-center">No matching products found.</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

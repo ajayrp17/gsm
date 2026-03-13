@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Track Order | Grogin{% endblock %}
+{% block content %}
+<div class="glass-card p-4">
+    <div class="d-flex justify-content-between flex-wrap mb-3">
+        <div>
+            <h3 class="mb-1">Track Order #{{ order.id }}</h3>
+            <p class="mb-0 text-muted">Tracking code: {{ order.tracking_code }}</p>
+        </div>
+        <div>
+            <span class="badge text-bg-primary">{{ order.get_status_display }}</span>
+        </div>
+    </div>
+
+    {% if order.status == 'cancelled' %}
+    <div class="alert alert-danger">This order has been cancelled.</div>
+    {% endif %}
+
+    <div class="progress-steps mt-3">
+        <div class="step {% if order.status == 'pending' or order.status == 'processing' or order.status == 'out_for_delivery' or order.status == 'delivered' %}done{% endif %}">
+            <span>1</span>
+            <p>Pending</p>
+        </div>
+        <div class="step {% if order.status == 'processing' or order.status == 'out_for_delivery' or order.status == 'delivered' %}done{% endif %}">
+            <span>2</span>
+            <p>Processing</p>
+        </div>
+        <div class="step {% if order.status == 'out_for_delivery' or order.status == 'delivered' %}done{% endif %}">
+            <span>3</span>
+            <p>Out for Delivery</p>
+        </div>
+        <div class="step {% if order.status == 'delivered' %}done{% endif %}">
+            <span>4</span>
+            <p>Delivered</p>
+        </div>
+    </div>
+
+    <hr>
+    <p class="mb-1"><strong>Delivery Address:</strong> {{ order.address.formatted }}</p>
+    <p class="mb-1"><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+    <p class="mb-0"><strong>Payment Status:</strong> {{ order.get_payment_status_display }}</p>
+</div>
+{% endblock %}

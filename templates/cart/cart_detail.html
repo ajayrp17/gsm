@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Your Cart | Grogin{% endblock %}
+{% block content %}
+<h3 class="mb-3">Shopping Cart</h3>
+{% if items %}
+<div class="glass-card p-3">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>INR {{ item.product.discounted_price }}</td>
+                    <td>
+                        <form method="post" action="{% url 'cart:update_cart_item' item.id %}" class="d-flex gap-2 align-items-center">
+                            {% csrf_token %}
+                            <input type="number" min="1" max="99" class="form-control form-control-sm" name="quantity" value="{{ item.quantity }}" style="width: 90px;">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+                        </form>
+                    </td>
+                    <td>INR {{ item.subtotal }}</td>
+                    <td>
+                        <form method="post" action="{% url 'cart:remove_cart_item' item.id %}">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <h5>Total: INR {{ total }}</h5>
+        <a href="{% url 'orders:checkout' %}" class="btn btn-theme">Proceed to Checkout</a>
+    </div>
+</div>
+{% else %}
+<div class="glass-card p-4 text-center">
+    <p class="mb-2">Your cart is empty.</p>
+    <a href="{% url 'catalog:product_list' %}" class="btn btn-theme">Go Shopping</a>
+</div>
+{% endif %}
+{% endblock %}

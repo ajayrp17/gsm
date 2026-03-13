@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Edit Address | Grogin{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="glass-card p-4">
+            <h3>Edit Address</h3>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-theme">Update Address</button>
+                <a href="{% url 'accounts:addresses' %}" class="btn btn-outline-secondary">Back</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Manage Billing | Grogin{% endblock %}
+{% block content %}
+<h3 class="mb-3">Billing Charges Configuration</h3>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="glass-card p-3">
+            <h5 class="mb-3">Update Tax & Charges</h5>
+            <form method="post" class="row g-3">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <label class="form-label">Tax (%)</label>
+                    {{ billing_form.tax_percentage }}
+                    {{ billing_form.tax_percentage.errors }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Delivery Charge</label>
+                    {{ billing_form.delivery_charge }}
+                    {{ billing_form.delivery_charge.errors }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Service Charge</label>
+                    {{ billing_form.service_charge }}
+                    {{ billing_form.service_charge.errors }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Extra Charge</label>
+                    {{ billing_form.extra_charge }}
+                    {{ billing_form.extra_charge.errors }}
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-theme">Save Billing Settings</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="glass-card p-3">
+            <h5 class="mb-3">Current Applied Charges</h5>
+            <p class="mb-2">Tax: <strong>{{ billing_config.tax_percentage }}%</strong></p>
+            <p class="mb-2">Delivery: <strong>INR {{ billing_config.delivery_charge }}</strong></p>
+            <p class="mb-2">Service: <strong>INR {{ billing_config.service_charge }}</strong></p>
+            <p class="mb-0">Extra: <strong>INR {{ billing_config.extra_charge }}</strong></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Manage Orders | Grogin{% endblock %}
+{% block content %}
+<h3 class="mb-3">Order Management</h3>
+<div class="glass-card p-3">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Payment Status</th>
+                    <th>Dispatch</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                    <th>Update</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.user.username }}</td>
+                    <td>INR {{ order.final_amount }}</td>
+                    <td>{{ order.get_payment_method_display }}</td>
+                    <td><span class="badge text-bg-secondary">{{ order.get_payment_status_display }}</span></td>
+                    <td>
+                        {% if order.dispatched_at %}
+                        <div class="small">
+                            {{ order.dispatched_at|date:'M d, Y H:i' }}<br>
+                            by {{ order.dispatched_by.username|default:'System' }}
+                        </div>
+                        {% else %}
+                        <span class="badge text-bg-warning">Not Dispatched</span>
+                        {% endif %}
+                    </td>
+                    <td><span class="badge text-bg-info">{{ order.get_status_display }}</span></td>
+                    <td>
+                        <a href="{% url 'dashboard:order_detail' order.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                    </td>
+                    <td>
+                        <form method="post" class="d-grid gap-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                            <div>
+                                <label class="form-label small mb-1">Order Status</label>
+                                <select class="form-select form-select-sm" name="status">
+                                    {% for value, label in status_choices %}
+                                    <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label small mb-1">Payment Status</label>
+                                <select class="form-select form-select-sm" name="payment_status">
+                                    {% for value, label in payment_status_choices %}
+                                    <option value="{{ value }}" {% if order.payment_status == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label small mb-1">Dispatch Mode</label>
+                                {% if order.status == processing_status %}
+                                <select class="form-select form-select-sm" disabled>
+                                    <option selected>Dispatch (Auto for Processing)</option>
+                                </select>
+                                <input type="hidden" name="dispatch_mode" value="{{ dispatch_mode_dispatched }}">
+                                <div class="small text-muted mt-1">Processing status is always auto-dispatched.</div>
+                                {% else %}
+                                <select class="form-select form-select-sm" name="dispatch_mode">
+                                    <option value="{{ dispatch_mode_dispatched }}" {% if order.dispatched_at %}selected{% endif %}>Dispatch</option>
+                                    <option value="{{ dispatch_mode_not_dispatched }}" {% if not order.dispatched_at %}selected{% endif %}>Non Dispatch</option>
+                                </select>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-theme" type="submit">Save Update</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9" class="text-center">No orders found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

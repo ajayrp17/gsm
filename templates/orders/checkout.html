@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Checkout | Grogin{% endblock %}
+{% block content %}
+<div class="row g-4 checkout-shell">
+    <div class="col-lg-7">
+        <div class="glass-card p-4 checkout-main-card">
+            <h3 class="mb-3">Checkout</h3>
+            {% if not request.user.addresses.exists %}
+            <div class="alert alert-warning">
+                Add at least one delivery address before checkout.
+                <a href="{% url 'accounts:addresses' %}">Manage Addresses</a>
+            </div>
+            {% endif %}
+
+            <form method="post" class="checkout-form-layout">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="mb-3">
+                    {{ form.non_field_errors }}
+                </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label class="form-label mb-1">Delivery Address</label>
+                    <select
+                        name="{{ form.address.html_name }}"
+                        id="{{ form.address.id_for_label }}"
+                        class="form-select address-short-select"
+                        data-add-url="{% url 'accounts:addresses' %}"
+                    >
+                        {% for address in form.fields.address.queryset %}
+                        <option value="{{ address.id }}" {% if selected_address_id == address.id|stringformat:'s' %}selected{% endif %}>
+                            {{ address.label }} - {{ address.city }} ({{ address.postal_code }})
+                        </option>
+                        {% endfor %}
+                        <option value="__add_new__">+ Add New Address</option>
+                    </select>
+                    {{ form.address.errors }}
+                    <div class="form-hint">Use the last option to add a new address.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Payment Method</label>
+                    {{ form.payment_method }}
+                    {{ form.payment_method.errors }}
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">Coupon Code</label>
+                    {{ form.coupon_code }}
+                    {{ form.coupon_code.errors }}
+                    <div class="form-hint">
+                        Eligible system offers are applied automatically.
+                    </div>
+                </div>
+
+                <div class="offer-grid mt-3">
+                    {% for offer in active_offers %}
+                    <a href="{% url 'orders:checkout' %}?coupon={{ offer.coupon_code|urlencode }}" class="offer-card {% if selected_coupon == offer.coupon_code %}offer-card-active{% endif %}">
+                        <span class="offer-chip">{{ offer.discount_percentage }}% OFF</span>
+                        <strong>{{ offer.name }}</strong>
+                        <small>{{ offer.coupon_code }}</small>
+                        <small>Min order: INR {{ offer.min_order_amount }}</small>
+                        <small>Expires {{ offer.expiry_date|date:'M d, Y' }}</small>
+                    </a>
+                    {% empty %}
+                    <div class="offer-card offer-card-empty">
+                        <strong>No active offers</strong>
+                        <small>Coupons will appear here when available.</small>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button class="btn btn-theme mt-4" type="submit" {% if not request.user.addresses.exists %}disabled{% endif %}>Confirm Order</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="glass-card p-4 checkout-summary-card">
+            <h4>Order Summary</h4>
+            <ul class="list-group list-group-flush mb-3">
+                {% for item in cart_items %}
+                <li class="list-group-item d-flex justify-content-between px-0 bg-transparent">
+                    <span>{{ item.product.name }} x {{ item.quantity }}</span>
+                    <span>INR {{ item.subtotal }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="d-flex justify-content-between">
+                <span>Subtotal</span>
+                <span>INR {{ subtotal }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>Discount</span>
+                <span>- INR {{ discount_amount }}</span>
+            </div>
+            {% if applied_offer %}
+            <div class="small text-success mt-1">
+                Coupon 1: {{ applied_offer.name }}{% if applied_offer.coupon_code %} ({{ applied_offer.coupon_code }}){% endif %}
+                - INR {{ primary_discount }}
+            </div>
+            {% endif %}
+            {% if applied_secondary_offer %}
+            <div class="small text-success">
+                Coupon 2: {{ applied_secondary_offer.name }}{% if applied_secondary_offer.coupon_code %} ({{ applied_secondary_offer.coupon_code }}){% endif %}
+                - INR {{ secondary_discount }}
+            </div>
+            {% endif %}
+            <div class="d-flex justify-content-between mt-2">
+                <span>Tax</span>
+                <span>INR {{ tax_amount }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>Delivery Charge</span>
+                <span>INR {{ delivery_charge }}</span>
+            </div>
+            {% if free_delivery_applied %}
+            <div class="small text-success">Free delivery applied for orders above INR {{ free_delivery_threshold }}.</div>
+            {% endif %}
+            <div class="d-flex justify-content-between">
+                <span>Service Charge</span>
+                <span>INR {{ service_charge }}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>Extra Charge</span>
+                <span>INR {{ extra_charge }}</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between fw-bold">
+                <span>Final Amount</span>
+                <span>INR {{ final_amount }}</span>
+            </div>
+            {% if coupon_error %}
+            <p class="mt-2 text-warning">{{ coupon_error }}</p>
+            {% endif %}
+            {% if applied_offer %}
+            <p class="mt-2 text-success">Applied coupon: {{ applied_offer.name }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const addressSelect = document.getElementById("id_address");
+    if (!addressSelect) {
+        return;
+    }
+
+    addressSelect.addEventListener("change", function () {
+        if (this.value === "__add_new__") {
+            const addUrl = this.dataset.addUrl;
+            if (addUrl) {
+                window.location.href = addUrl;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

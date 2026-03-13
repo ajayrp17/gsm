@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard | Grogin{% endblock %}
+{% block content %}
+<h2 class="mb-4">Admin Dashboard</h2>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="glass-card p-3 h-100">
+            <p class="text-muted mb-1">Total Sales</p>
+            <h3>INR {{ total_sales }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card p-3 h-100">
+            <p class="text-muted mb-1">Total Orders</p>
+            <h3>{{ total_orders }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card p-3 h-100">
+            <p class="text-muted mb-1">Pending Orders</p>
+            <h3>{{ pending_orders }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card p-3 h-100">
+            <p class="text-muted mb-1">Total Items</p>
+            <h3>{{ total_products }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card p-3 h-100">
+            <p class="text-muted mb-1">Active Offers</p>
+            <h3>{{ active_offers }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="glass-card p-3 h-100">
+            <p class="text-muted mb-1">Pending Payments</p>
+            <h3>{{ pending_payments }}</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="glass-card p-3 h-100">
+            <h5>Monthly Revenue</h5>
+            <ul class="list-group list-group-flush">
+                {% for item in monthly_revenue %}
+                <li class="list-group-item d-flex justify-content-between bg-transparent px-0">
+                    <span>{{ item.month }}</span>
+                    <strong>INR {{ item.revenue }}</strong>
+                </li>
+                {% empty %}
+                <li class="list-group-item bg-transparent px-0">No revenue records.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="glass-card p-3 h-100">
+            <h5>Top Selling Items</h5>
+            <ul class="list-group list-group-flush">
+                {% for product in top_products %}
+                <li class="list-group-item d-flex justify-content-between bg-transparent px-0">
+                    <span>{{ product.product__name }}</span>
+                    <span>{{ product.total_qty }} sold</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item bg-transparent px-0">No sales data yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-lg-6">
+        <div class="glass-card p-3 h-100">
+            <h5 class="mb-3">Recent Orders</h5>
+            <ul class="list-group list-group-flush">
+                {% for order in recent_orders %}
+                <li class="list-group-item d-flex justify-content-between bg-transparent px-0">
+                    <span>#{{ order.id }} - {{ order.user.username }}</span>
+                    <span class="badge text-bg-info">{{ order.get_status_display }}</span>
+                </li>
+                {% empty %}
+                <li class="list-group-item bg-transparent px-0">No orders yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="glass-card p-3 h-100">
+            <h5 class="mb-3">Dashboard Quick Actions</h5>
+            <div class="d-grid gap-2">
+                <a href="{% url 'dashboard:manage_items' %}" class="btn btn-theme">Add / Manage Items</a>
+                <a href="{% url 'dashboard:manage_coupons' %}" class="btn btn-outline-primary">Create / Manage Coupons</a>
+                <a href="{% url 'dashboard:manage_billing' %}" class="btn btn-outline-primary">Billing Charges / Tax</a>
+                <a href="{% url 'dashboard:manage_orders' %}" class="btn btn-outline-dark">View / Update Orders</a>
+                <a href="{% url 'dashboard:manage_payments' %}" class="btn btn-outline-dark">Manage Payments</a>
+                <a href="{% url 'dashboard:manage_users' %}" class="btn btn-outline-dark">Manage Users</a>
+            </div>
+            <p class="text-muted mt-3 mb-0">
+                Active coupons: {{ active_coupons }} |
+                Tax: {{ billing_config.tax_percentage }}% |
+                Delivery: INR {{ billing_config.delivery_charge }}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 d-flex gap-2 flex-wrap">
+    <a href="{% url 'dashboard:manage_items' %}" class="btn btn-theme">Manage Items</a>
+    <a href="{% url 'dashboard:manage_coupons' %}" class="btn btn-outline-primary">Manage Coupons</a>
+    <a href="{% url 'dashboard:manage_billing' %}" class="btn btn-outline-primary">Manage Billing</a>
+    <a href="{% url 'dashboard:manage_orders' %}" class="btn btn-theme">Manage Orders</a>
+    <a href="{% url 'dashboard:manage_payments' %}" class="btn btn-outline-primary">Manage Payments</a>
+    <a href="{% url 'dashboard:manage_users' %}" class="btn btn-outline-primary">Manage Users</a>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+[
+  {
+    "model": "catalog.category",
+    "pk": 1,
+    "fields": {
+      "name": "Fruits",
+      "slug": "fruits",
+      "description": "Fresh seasonal fruits"
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 2,
+    "fields": {
+      "name": "Vegetables",
+      "slug": "vegetables",
+      "description": "Farm fresh vegetables"
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 3,
+    "fields": {
+      "name": "Dairy",
+      "slug": "dairy",
+      "description": "Milk and milk products"
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 4,
+    "fields": {
+      "name": "Snacks",
+      "slug": "snacks",
+      "description": "Ready to eat snacks"
+    }
+  },
+  {
+    "model": "catalog.category",
+    "pk": 5,
+    "fields": {
+      "name": "Beverages",
+      "slug": "beverages",
+      "description": "Cold and healthy drinks"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 1,
+    "fields": {
+      "category": 1,
+      "name": "Organic Bananas",
+      "slug": "organic-bananas",
+      "description": "Naturally ripened organic bananas.",
+      "price": "40.00",
+      "stock": 120,
+      "image": "",
+      "is_active": true,
+      "created_at": "2026-03-01T10:00:00Z",
+      "updated_at": "2026-03-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 2,
+    "fields": {
+      "category": 2,
+      "name": "Fresh Tomatoes",
+      "slug": "fresh-tomatoes",
+      "description": "Farm-picked tomatoes (1kg).",
+      "price": "55.00",
+      "stock": 80,
+      "image": "",
+      "is_active": true,
+      "created_at": "2026-03-01T10:00:00Z",
+      "updated_at": "2026-03-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "catalog.product",
+    "pk": 3,
+    "fields": {
+      "category": 3,
+      "name": "Cow Milk 1L",
+      "slug": "cow-milk-1l",
+      "description": "Pasteurized full cream milk.",
+      "price": "62.00",
+      "stock": 110,
+      "image": "",
+      "is_active": true,
+      "created_at": "2026-03-01T10:00:00Z",
+      "updated_at": "2026-03-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "catalog.offer",
+    "pk": 1,
+    "fields": {
+      "name": "Starter Coupon",
+      "coupon_code": "SAVE10",
+      "discount_percentage": 10,
+      "expiry_date": "2030-12-31",
+      "active": true,
+      "products": [1, 2, 3]
+    }
+  }
+]

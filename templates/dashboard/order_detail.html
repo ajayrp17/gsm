@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Order #{{ order.id }} | Dashboard{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h3 class="mb-0">Order #{{ order.id }} Details</h3>
+    <a href="{% url 'dashboard:manage_orders' %}" class="btn btn-outline-primary">Back to Orders</a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="glass-card p-3 h-100">
+            <h5 class="mb-3">Order Summary</h5>
+            <p class="mb-1"><strong>User:</strong> {{ order.user.username }} ({{ order.user.email }})</p>
+            <p class="mb-1"><strong>Status:</strong> {{ order.get_status_display }}</p>
+            <p class="mb-1"><strong>Payment Method:</strong> {{ order.get_payment_method_display }}</p>
+            <p class="mb-1"><strong>Payment Status:</strong> {{ order.get_payment_status_display }}</p>
+            <p class="mb-1"><strong>Subtotal:</strong> INR {{ order.total_amount }}</p>
+            <p class="mb-1"><strong>Discount:</strong> INR {{ order.discount_amount }}</p>
+            <p class="mb-1"><strong>Tax:</strong> INR {{ order.tax_amount }}</p>
+            <p class="mb-1"><strong>Delivery Charge:</strong> INR {{ order.delivery_charge }}</p>
+            <p class="mb-1"><strong>Service Charge:</strong> INR {{ order.service_charge }}</p>
+            <p class="mb-1"><strong>Extra Charge:</strong> INR {{ order.extra_charge }}</p>
+            <p class="mb-1"><strong>Final Amount:</strong> INR {{ order.final_amount }}</p>
+            <p class="mb-1"><strong>Coupon 1:</strong>
+                {% if order.coupon %}
+                {{ order.coupon.coupon_code|default:order.coupon.name }}
+                {% else %}
+                -
+                {% endif %}
+            </p>
+            <p class="mb-1"><strong>Coupon 2:</strong>
+                {% if order.coupon_secondary %}
+                {{ order.coupon_secondary.coupon_code|default:order.coupon_secondary.name }}
+                {% else %}
+                -
+                {% endif %}
+            </p>
+            <p class="mb-1"><strong>Tracking Code:</strong> {{ order.tracking_code }}</p>
+            <p class="mb-1"><strong>Created:</strong> {{ order.created_at|date:'M d, Y H:i' }}</p>
+            {% if order.dispatched_at %}
+            <p class="mb-0"><strong>Dispatched:</strong> {{ order.dispatched_at|date:'M d, Y H:i' }} by {{ order.dispatched_by.username|default:"System" }}</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="glass-card p-3 h-100">
+            <h5 class="mb-3">Delivery Address</h5>
+            <p class="mb-1"><strong>{{ order.address.full_name }}</strong></p>
+            <p class="mb-1">{{ order.address.phone }}</p>
+            <p class="mb-1">{{ order.address.line1 }}</p>
+            {% if order.address.line2 %}
+            <p class="mb-1">{{ order.address.line2 }}</p>
+            {% endif %}
+            <p class="mb-1">{{ order.address.city }}, {{ order.address.state }} - {{ order.address.postal_code }}</p>
+            {% if order.address.landmark %}
+            <p class="mb-0">Landmark: {{ order.address.landmark }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="glass-card p-3">
+    <h5 class="mb-3">Ordered Items</h5>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>INR {{ item.price }}</td>
+                    <td>INR {{ item.subtotal }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center">No items found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
